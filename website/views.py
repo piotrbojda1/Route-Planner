@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, request, flash, url_for
 from flask_login import login_required, current_user
 from website import db
 from website.location import get_location_origin, get_location_destination
+from website.models import Route
 import requests
 import datetime
 from dotenv import load_dotenv
@@ -57,6 +58,12 @@ def home():
         response = requests.get(url)
         data = response.json()
 
+         # Get the avoid from the response
+        for avoid_data in data['report']['effectiveSettings']:
+            if avoid_data['key'] == 'avoid':
+                avoidType = avoid_data['value']
+                break
+
         # Get the length and travel time of the route
         for route in data['routes']:
             length_route = route['summary']['lengthInMeters']
@@ -78,8 +85,28 @@ def home():
                 'avoid': avoidType,
             })
 
+        # Create a new route
+        for route in routes:
+            new_route = Route(
+                origin=route['origin'],
+                destination=route['destination'],
+                length_route=route['length_route'],
+                travel_time=route['travel_time'],
+                user_id=current_user.id,
+                avoid=avoidType,
+                             )
+
+        # Save the route to the database
+        db.session.add(new_route)
+        db.session.commit()
+
+        # Flash a message
+        flash('Route created!', category='success')
+
         # Redirect to the home page
         return redirect(url_for('views.home'))
     else:
+        # Get all the routes
+        routes = Route.query.filter_by(user_id=current_user.id).all()
         # Render the home page
-        return render_template("home.html", user=current_user)
+        return render_template("home.html", user=current_user, routes=routes)
