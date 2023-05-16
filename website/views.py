@@ -69,6 +69,17 @@ def home():
         # Create a empty list to store the routes
             routes = []
 
-        
-    # Render the home page
-    return render_template("home.html", user=current_user)
+         # Append the route to the routes list
+            routes.append({
+                'origin': current_location,
+                'destination': destination,
+                'length_route': '{:.2f}'.format(length_route),
+                'travel_time': '{:.2f}'.format(travel_time),
+                'avoid': avoidType,
+            })
+
+        # Redirect to the home page
+        return redirect(url_for('views.home'))
+    else:
+        # Render the home page
+        return render_template("home.html", user=current_user)
