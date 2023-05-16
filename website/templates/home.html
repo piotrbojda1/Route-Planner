@@ -5,5 +5,48 @@
 {% block content %}
   <div style="max-width: 500px; margin: 0 auto;">
     <h1 class="display-5 text-center" >Welcome to the Car Route Planner!</h1><br>
-  </div>
+    <form method="POST" action="{{ url_for('views.home') }}" style="display: flex; flex-direction: column; background-color: #f5f5f5; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+      <div style="display: flex; flex-direction: column;">
+    <div class="form-group">
+      <label for="current_location"><b>Current Location:</b></label>
+      <input type="text" class="form-control" id="current_location" name="current_location" placeholder="Enter current location" required>
+    </div>
+    <div class="form-group">
+      <label for="destination"><b>Destination:</b></label>
+      <input type="text" class="form-control" id="destination" name="destination" placeholder="Enter destination" required>
+    </div>
+    <div class="form-group">
+      <label for="departure_date"><b>Departure Date:</b></label>
+      <input type="datetime-local" class="form-control" id="departure_date" name="departure_date" required>
+    </div>
+    <div class="form-group">
+      <label><b>Avoid:</b></label>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="tollRoads" name="avoid[]" value="tollRoads">
+        <label class="form-check-label" for="tollRoads">Toll roads</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="motorways" name="avoid[]" value="motorways">
+        <label class="form-check-label" for="motorways">Motorways</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="ferries" name="avoid[]" value="ferries">
+        <label class="form-check-label" for="ferries">Ferries</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="unpavedRoads" name="avoid[]" value="unpavedRoads">
+        <label class="form-check-label" for="unpavedRoads">Unpaved roads</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="carpools" name="avoid[]" value="carpools">
+        <label class="form-check-label" for="carpools">Carpools</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="alreadyUsedRoads" name="avoid[]" value="alreadyUsedRoads">
+        <label class="form-check-label" for="alreadyUsedRoads">Already used roads</label>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success" style="display: block; margin: 0 auto; padding: 0.5rem 1rem; border: none; border-radius: 0.25rem; box-shadow: 0 0 5px rgba(0,0,0,0.3); cursor: pointer;">Plan your travel</button>
+  </form>
+</div>
 {% endblock %}
