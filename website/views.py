@@ -66,35 +66,42 @@ def home():
 
         # Get the length and travel time of the route
         for route in data['routes']:
-            length_route = route['summary']['lengthInMeters']
-            if length_route > 0:
-                length_route = float(length_route / 1000)
-            travel_time = route['summary']['travelTimeInSeconds']
-            if travel_time > 0:
-                travel_time = float(travel_time / 3600)
+            length_route_meters = route['summary']['lengthInMeters']
+            if length_route_meters > 0:
+                length_route_km, length_route_m = divmod(length_route_meters, 1000)
+                length_route_km = int(length_route_km)
+                length_route_m = int(length_route_m)
+
+            travel_time_seconds = route['summary']['travelTimeInSeconds']
+            if travel_time_seconds > 0:
+                travel_time_hours, travel_time_minutes = divmod(travel_time_seconds, 3600)
+                travel_time_hours = int(travel_time_hours)
+                travel_time_minutes = int(travel_time_minutes / 60)
 
         # Create a empty list to store the routes
             routes = []
 
          # Append the route to the routes list
             routes.append({
-                'origin': current_location,
-                'destination': destination,
-                'length_route': '{:.2f}'.format(length_route),
-                'travel_time': '{:.2f}'.format(travel_time),
-                'avoid': avoidType,
-            })
+            'origin': current_location,
+            'destination': destination,
+            'length_route_km': length_route_km,
+            'length_route_m': length_route_m,
+            'travel_time_hours': travel_time_hours,
+            'travel_time_minutes': travel_time_minutes,
+            'avoid': avoidType,
+        })
 
         # Create a new route
         for route in routes:
             new_route = Route(
-                origin=route['origin'],
-                destination=route['destination'],
-                length_route=route['length_route'],
-                travel_time=route['travel_time'],
-                user_id=current_user.id,
-                avoid=avoidType,
-                             )
+            origin=route['origin'],
+            destination=route['destination'],
+            length_route=f"{route['length_route_km']} km {route['length_route_m']} m",
+            travel_time=f"{route['travel_time_hours']} h {route['travel_time_minutes']} min",
+            user_id=current_user.id,
+            avoid=route['avoid']
+                            )
 
         # Save the route to the database
         db.session.add(new_route)
