@@ -10,6 +10,32 @@ Make sure you have the latest version of Python installed.
 git clone https://github.com/piotrbojda1/Route-Planner.git
 ```
 
+Create your virtual environment
+
+```bash
+python -m venv env
+```
+or
+```bash
+python3 -m venv env
+```
+
+Activating your virtual environment
+
+on Windows:
+
+```bash
+env\Scripts\activate
+```
+
+on MacOS:
+
+```bash
+source venv/bin/activate on MacOS
+```
+
+Now install all needed packages
+
 ```bash
 pip install -r requirements.txt
 ```
