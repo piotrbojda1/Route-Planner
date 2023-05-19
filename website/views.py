@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, request, flash, url_for
+from flask import Blueprint, render_template, redirect, request, flash, url_for, session
 from flask_login import login_required, current_user
 from website import db
 from website.location import get_location_origin, get_location_destination
@@ -107,6 +107,8 @@ def home():
         db.session.add(new_route)
         db.session.commit()
 
+        session['new_route_created'] = True
+
         # Flash a message
         flash('Route created!', category='success')
 
@@ -117,3 +119,16 @@ def home():
         routes = Route.query.filter_by(user_id=current_user.id).all()
         # Render the home page
         return render_template("home.html", user=current_user, routes=routes)
+
+@views.route('/result')
+@login_required
+def details():
+    routes = Route.query.order_by(Route.id.desc()).first()
+    return render_template("result.html", user=current_user, routes=[routes])
+
+@views.route('/history')
+@login_required
+def routes_history():
+    # Get all the routes
+    routes = Route.query.filter_by(user_id=current_user.id).all()
+    return render_template("history.html", user=current_user, routes=routes)
