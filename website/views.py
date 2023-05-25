@@ -1,14 +1,17 @@
 from flask import Blueprint, render_template, redirect, request, flash, url_for, session
 from flask_login import login_required, current_user
 from website import db
-from website.location import get_location_origin, get_location_destination
-from website.models import Route
+from .location import get_location_origin, get_location_destination
+from .models import Route
+import folium
 import requests
 import datetime
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+POINTS = None
 
 views = Blueprint('views', __name__)
 
@@ -27,7 +30,7 @@ def home():
         # Get the origin and destination coordinates
         origin = get_location_origin(current_location)
         dest = get_location_destination(destination)
-
+    
         # Create a list to store the routes
         routePlanningLocations = f"{origin[0]},{origin[1]}:{dest[0]},{dest[1]}"
         
@@ -56,7 +59,8 @@ def home():
 
         # Call the TomTom API and get the response
         response = requests.get(url)
-        data = response.json()
+        session['data'] = response.json()
+        data = session.get('data')
 
          # Get the avoid from the response
         for avoid_data in data['report']['effectiveSettings']:
@@ -102,6 +106,15 @@ def home():
             user_id=current_user.id,
             avoid=route['avoid']
                             )
+        
+        points = []
+        for route in data['routes']:
+            for leg in route['legs']:
+                for point in leg['points']:
+                    points.append(point)
+
+        global POINTS
+        POINTS = points
 
         # Save the route to the database
         db.session.add(new_route)
@@ -113,7 +126,7 @@ def home():
         flash('Route created!', category='success')
 
         # Redirect to the home page
-        return redirect(url_for('views.home'))
+        return redirect(url_for('views.details'))
     else:
         # Get all the routes
         routes = Route.query.filter_by(user_id=current_user.id).all()
@@ -123,10 +136,29 @@ def home():
 @views.route('/result')
 @login_required
 def details():
-    routes = Route.query.order_by(Route.id.desc()).first()
-    return render_template("result.html", user=current_user, routes=[routes])
+    # Get the points data from the session
+    global POINTS
+    points = POINTS
+    print(points)
+    # Create a map
+    map = folium.Map(location=[points[0]["latitude"], points[0]["longitude"]], zoom_start=12)
 
-@views.route('/history')
+    # Start point marker
+    folium.Marker([points[0]["latitude"], points[0]["longitude"]], popup='<i>Start</i>', color='green', fill_color='green').add_to(map)
+    # End point marker
+    folium.Marker([points[-1]["latitude"], points[-1]["longitude"]], popup='<i>End</i>', color='red', fill_color='red').add_to(map)
+    # Draw the route
+    folium.PolyLine(locations=[[p["latitude"], p["longitude"]] for p in points], color="blue", weight=2.5, opacity=1).add_to(map)
+
+    # Save the map to a file
+    map.save('website/static/maps/map.html')
+
+    # Get the latest route from the database
+    routes = Route.query.order_by(Route.id.desc()).first()
+
+    return render_template("result.html", user=current_user, routes=[routes], map_path='maps/map.html')
+
+@views.route('/history')    
 @login_required
 def routes_history():
     # Get all the routes
