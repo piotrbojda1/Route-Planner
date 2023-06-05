@@ -50,6 +50,7 @@ To add environment variables like API key which is required create ".env" file i
 
 ```bash
 API_KEY="here_enter_your_api_key"
+SECRET_KEY="here_enter_your_secret_key"
 ```
 
 ## Running The App
