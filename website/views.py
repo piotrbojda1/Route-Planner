@@ -59,8 +59,7 @@ def home():
 
         # Call the TomTom API and get the response
         response = requests.get(url)
-        session['data'] = response.json()
-        data = session.get('data')
+        data = response.json()
 
          # Get the avoid from the response
         for avoid_data in data['report']['effectiveSettings']:
@@ -139,7 +138,6 @@ def details():
     # Get the points data from the session
     global POINTS
     points = POINTS
-    print(points)
     # Create a map
     map = folium.Map(location=[points[0]["latitude"], points[0]["longitude"]], zoom_start=12)
 
@@ -151,7 +149,9 @@ def details():
     folium.PolyLine(locations=[[p["latitude"], p["longitude"]] for p in points], color="blue", weight=2.5, opacity=1).add_to(map)
 
     # Save the map to a file
-    map.save('website/static/maps/map.html')
+    map_path = 'website/static/maps/map.html'
+    map.save(map_path)
+
 
     # Get the latest route from the database
     routes = Route.query.order_by(Route.id.desc()).first()
