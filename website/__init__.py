@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from os import path
+from os import makedirs, path
 from flask_login import LoginManager
 from dotenv import load_dotenv
 import os
@@ -8,7 +8,6 @@ load_dotenv()
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
-
 
 def create_app():
     app = Flask(__name__)
@@ -39,6 +38,6 @@ def create_app():
 
 
 def create_database(app):
-    if not path.exists('web/' + DB_NAME):
+    if not path.exists('website/' + DB_NAME):
         db.create_all(app=app)
         print('Created Database!')
