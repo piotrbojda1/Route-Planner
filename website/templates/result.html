@@ -49,7 +49,7 @@
               <div class="text-center" style="padding-top: 10px; margin-top: 10px">
                 <a href="{{ url_for('views.routes_history') }}" class="btn btn-primary">Routes History</a>
               </div>
-            </div>
+            </div><br>
             <div>
                 {% if map_path %}
                 <iframe src="{{ url_for('static', filename='maps/map.html') }}" width="100%" height="600"></iframe>
